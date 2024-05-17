@@ -4,37 +4,25 @@ import type { IPostDBLoadMod } from "@spt-aki/models/external/IPostDBLoadMod";
 import type { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
 import type { IDatabaseTables } from "@spt-aki/models/spt/server/IDatabaseTables";
 import type { ItemHelper } from "@spt-aki/helpers/ItemHelper";
+import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 import { BaseClasses } from "@spt-aki/models/enums/BaseClasses";
 
-class Mod implements IPostDBLoadMod
+class DefaultFireMode implements IPostDBLoadMod
 {
+    private mod: string
+    private logger: ILogger
+    
+    constructor() {
+        this.mod = "DefaultFireMode"; // Set name of mod so we can log it to console later
+    }
+
     public postDBLoad(container: DependencyContainer): void 
     {
-        // get database from server
         const databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
+        this.logger = container.resolve<ILogger>("WinstonLogger");
+        this.logger.debug(`[${this.mod}] postDBLoad starting... `);
         
-
-        // Get all the in-memory json found in /assets/database
         const tables: IDatabaseTables = databaseServer.getTables();
-
-        // ---------------------------------------------------------
-        // example #1
-        // Make the LEDX item sellable on flea market
-
-        // Find the ledx item by its Id
-        const ledx = tables.templates.items["5c0530ee86f774697952d952"];
-
-        // Update one of its properties to be true
-        ledx._props.CanSellOnRagfair = true;
-
-        // ---------------------------------------------------------
-        // example #2
-        // Get globals settings and set flea market min level to be 1
-        tables.globals.config.RagFair.minUserLevel = 1;
-
-        // ---------------------------------------------------------
-        // Example #3
-        // Loop over all magazines and make them weigh nothing
 
         // Get ItemHelper ready to use
         const itemHelper: ItemHelper = container.resolve<ItemHelper>("ItemHelper");
@@ -45,21 +33,21 @@ class Mod implements IPostDBLoadMod
         // Object.values lets us grab the 'value' part as an array and ignore the 'key' part
         const items = Object.values(tables.templates.items);
 
-        // Use the itemHelper class to assist us in getting only magazines
-        // We are filtering all items to only those with a base class of MAGAZINE (5448bc234bdc2d3c308b4569)
-        const magazines = items.filter(x => itemHelper.isOfBaseclass(x._id, BaseClasses.MAGAZINE));
+        const weapons = items.filter(x => itemHelper.isOfBaseclass(x._id, BaseClasses.WEAPON));
 
-        // Loop over all the magazines the above code found
-        for (const magazine of magazines)
+        // Loop over all the weapons
+        for (const weapon of weapons)
         {
-            // Check the magazine has a weight property before we edit it
-            if (magazine._props.Weight)
+            // Check the weapon has a fireType selector property
+            if (weapon._props.weapFireType)
             {
-                // Set its weight to 0
-                magazine._props.Weight = 0;
+                // Re-order the weapFireType based on length
+                weapon._props.weapFireType.sort((a, b) => b.length - a.length);
+
             }
         }
+        this.logger.debug(`[${this.mod}] postDBLoad Completed... `);
     }
 }
 
-module.exports = { mod: new Mod() }
+module.exports = { mod: new DefaultFireMode() }
