@@ -1,11 +1,11 @@
 import type { DependencyContainer } from "tsyringe";
 
-import type { IPostDBLoadMod } from "@spt-aki/models/external/IPostDBLoadMod";
-import type { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import type { IDatabaseTables } from "@spt-aki/models/spt/server/IDatabaseTables";
-import type { ItemHelper } from "@spt-aki/helpers/ItemHelper";
-import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { BaseClasses } from "@spt-aki/models/enums/BaseClasses";
+import type { IPostDBLoadMod } from "@spt/models/external/IPostDBLoadMod";
+import type { DatabaseService } from "@spt/services/DatabaseService";
+import type { IDatabaseTables } from "@spt/models/spt/server/IDatabaseTables";
+import type { ItemHelper } from "@spt/helpers/ItemHelper";
+import type { ILogger } from "@spt/models/spt/utils/ILogger";
+import { BaseClasses } from "@spt/models/enums/BaseClasses";
 
 class DefaultFireMode implements IPostDBLoadMod
 {
@@ -18,11 +18,11 @@ class DefaultFireMode implements IPostDBLoadMod
 
     public postDBLoad(container: DependencyContainer): void 
     {
-        const databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
+        const databaseService = container.resolve<DatabaseService>("DatabaseService");
         this.logger = container.resolve<ILogger>("WinstonLogger");
         this.logger.debug(`[${this.mod}] postDBLoad starting... `);
         
-        const tables: IDatabaseTables = databaseServer.getTables();
+        const tables: IDatabaseTables = databaseService.getTables();
 
         // Get ItemHelper ready to use
         const itemHelper: ItemHelper = container.resolve<ItemHelper>("ItemHelper");
