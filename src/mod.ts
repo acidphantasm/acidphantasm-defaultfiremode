@@ -43,7 +43,6 @@ class DefaultFireMode implements IPostDBLoadMod
             {
                 // Re-order the weapFireType based on length
                 weapon._props.weapFireType.sort((a, b) => b.length - a.length);
-
             }
         }
         this.logger.debug(`[${this.mod}] postDBLoad Completed... `);
