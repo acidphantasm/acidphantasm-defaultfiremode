@@ -19,9 +19,6 @@ class DefaultFireMode implements IPostDBLoadMod
     public postDBLoad(container: DependencyContainer): void 
     {
         const databaseService = container.resolve<DatabaseService>("DatabaseService");
-        this.logger = container.resolve<ILogger>("WinstonLogger");
-        this.logger.debug(`[${this.mod}] postDBLoad starting... `);
-        
         const tables: IDatabaseTables = databaseService.getTables();
 
         // Get ItemHelper ready to use
@@ -45,7 +42,6 @@ class DefaultFireMode implements IPostDBLoadMod
                 weapon._props.weapFireType.sort((a, b) => b.length - a.length);
             }
         }
-        this.logger.debug(`[${this.mod}] postDBLoad Completed... `);
     }
 }
 
